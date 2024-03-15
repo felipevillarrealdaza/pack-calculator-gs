@@ -1,0 +1,4 @@
+appname: "api"
+outout: ./api
+watch_paths:
+  - ../..

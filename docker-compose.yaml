@@ -1,0 +1,37 @@
+services:
+  api:
+    build:
+      target: build
+      context: .
+      dockerfile: docker/api/Dockerfile
+    command: gowatch
+    working_dir: /tmp/src/cmd/api
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - APP_NAME=api
+      - APP_ENV=local
+      - APP_LOG_LEVEL=info
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PASS=password
+      - DB_NAME=pack_calculator
+      - DB_SSLMODE=disable
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./:/tmp/src
+  db:
+    build:
+      context: .
+      dockerfile: docker/db/Dockerfile
+    environment:
+      POSTGRES_PASSWORD: password
+  adminer:
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
