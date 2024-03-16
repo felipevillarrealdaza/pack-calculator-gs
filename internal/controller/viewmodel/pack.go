@@ -1,5 +1,5 @@
 package viewmodel
 
-type Pack struct {
-	Size int `json:"size"`
+type PackRequest struct {
+	Size int `json:"size" validate:"required"`
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/felipevillarrealdaza/go-service-template/internal/controller/viewmodel"
 	"github.com/felipevillarrealdaza/go-service-template/internal/mediator"
+	"github.com/go-playground/validator/v10"
 )
 
 // Dependency injection using optional pattern
@@ -24,10 +25,11 @@ type PackController interface {
 
 type packController struct {
 	packMediator mediator.PackMediator
+	validate     *validator.Validate
 }
 
 func NewHttpPackController(deps ...PackControllerDeps) PackController {
-	packController := packController{}
+	packController := packController{validate: validator.New(validator.WithRequiredStructEnabled())}
 	for _, opt := range deps {
 		opt(&packController)
 	}
@@ -36,10 +38,15 @@ func NewHttpPackController(deps ...PackControllerDeps) PackController {
 
 func (pc packController) AddPack(w http.ResponseWriter, r *http.Request) {
 	// Parse request to viewmodel
-	var requestBody viewmodel.Pack
+	var requestBody viewmodel.PackRequest
 	jsonErr := json.NewDecoder(r.Body).Decode(&requestBody)
 	if jsonErr != nil {
-		http.Error(w, jsonErr.Error(), http.StatusBadRequest)
+		http.Error(w, jsonErr.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+	validationErr := pc.validate.Struct(&requestBody)
+	if validationErr != nil {
+		http.Error(w, validationErr.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -55,10 +62,15 @@ func (pc packController) AddPack(w http.ResponseWriter, r *http.Request) {
 
 func (pc packController) RemovePack(w http.ResponseWriter, r *http.Request) {
 	// Parse request to viewmodel
-	var requestBody viewmodel.Pack
+	var requestBody viewmodel.PackRequest
 	jsonErr := json.NewDecoder(r.Body).Decode(&requestBody)
 	if jsonErr != nil {
-		http.Error(w, jsonErr.Error(), http.StatusBadRequest)
+		http.Error(w, jsonErr.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+	validationErr := pc.validate.Struct(&requestBody)
+	if validationErr != nil {
+		http.Error(w, validationErr.Error(), http.StatusBadRequest)
 		return
 	}
 

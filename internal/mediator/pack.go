@@ -35,6 +35,11 @@ func NewPackMediator(deps ...PackMediatorDeps) PackMediator {
 }
 
 func (pm packMediator) AddPack(ctx context.Context, size int) error {
+	// Validate pack is a natural number
+	if size <= 0 {
+		return errors.New(fmt.Sprintf("pack size [%v] must be bigger than 0", size))
+	}
+
 	// Add pack in db
 	if addErr := pm.packRepository.AddPack(ctx, int32(size)); addErr != nil {
 		return errors.Wrap(addErr, fmt.Sprintf("could not add pack of size [%v]", size))

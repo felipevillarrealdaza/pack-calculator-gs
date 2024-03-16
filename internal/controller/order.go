@@ -8,6 +8,7 @@ import (
 	"github.com/felipevillarrealdaza/go-service-template/internal/controller/viewmodel"
 	"github.com/felipevillarrealdaza/go-service-template/internal/mediator"
 	"github.com/felipevillarrealdaza/go-service-template/internal/mediator/domain_model"
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
@@ -26,10 +27,11 @@ type OrderController interface {
 
 type orderController struct {
 	orderMediator mediator.OrderMediator
+	validate      *validator.Validate
 }
 
 func NewHttpOrderController(deps ...OrderControllerDeps) OrderController {
-	orderController := orderController{}
+	orderController := orderController{validate: validator.New(validator.WithRequiredStructEnabled())}
 	for _, opt := range deps {
 		opt(&orderController)
 	}
@@ -37,11 +39,17 @@ func NewHttpOrderController(deps ...OrderControllerDeps) OrderController {
 }
 
 func (oc orderController) AddOrder(w http.ResponseWriter, r *http.Request) {
-	// Parse request to viewmodel
 	var requestBody viewmodel.OrderRequest
+
+	// Validate JSON and request body
 	jsonErr := json.NewDecoder(r.Body).Decode(&requestBody)
 	if jsonErr != nil {
-		http.Error(w, jsonErr.Error(), http.StatusBadRequest)
+		http.Error(w, jsonErr.Error(), http.StatusUnprocessableEntity)
+		return
+	}
+	validationErr := oc.validate.Struct(&requestBody)
+	if validationErr != nil {
+		http.Error(w, validationErr.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -51,15 +59,15 @@ func (oc orderController) AddOrder(w http.ResponseWriter, r *http.Request) {
 		Quantity: requestBody.OrderQuantity,
 	}
 	if createOrderErr := oc.orderMediator.CreateOrder(r.Context(), order); createOrderErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprint(createOrderErr)))
+		http.Error(w, createOrderErr.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Once order is created, calculate order packs needed
 	orderPacks, calculateErr := oc.orderMediator.CalculateOrderPacks(r.Context(), order.OrderId)
 	if calculateErr != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte(fmt.Sprint(calculateErr)))
+		http.Error(w, calculateErr.Error(), http.StatusInternalServerError)
+		return
 	}
 
 	// Translate the order packs to view model and return to client

@@ -11,6 +11,8 @@ import (
 
 	api "github.com/felipevillarrealdaza/go-service-template/internal/api/http"
 	"github.com/felipevillarrealdaza/go-service-template/internal/config"
+	"github.com/felipevillarrealdaza/go-service-template/internal/mediator"
+	"github.com/felipevillarrealdaza/go-service-template/internal/repository"
 	_ "github.com/lib/pq"
 	"github.com/sethvargo/go-envconfig"
 )
@@ -52,7 +54,14 @@ func createAndStartHttpServer(dbCtx *sql.DB, apiConfig config.ApiConfig, serverE
 }
 
 func createHttpApiHandler(dbCtx *sql.DB) http.Handler {
-	return api.NewRouter(dbCtx)
+	// Create repository, which is a dependency for mediators
+	repository := repository.New(dbCtx)
+
+	// Create mediators, which are dependencies for controllers
+	packMediator := mediator.NewPackMediator(mediator.WithPackRepository(repository))
+	orderMediator := mediator.NewOrderMediator(mediator.WithOrderRepository(repository))
+
+	return api.NewRouter(packMediator, orderMediator, repository)
 }
 
 func createHttpServer(apiConfig config.ApiConfig, handler http.Handler) http.Server {

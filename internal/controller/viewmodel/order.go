@@ -1,7 +1,7 @@
 package viewmodel
 
 type OrderRequest struct {
-	OrderQuantity int `json:"quantity"`
+	OrderQuantity int `json:"quantity" validate:"required"`
 }
 
 type OrderPack struct {

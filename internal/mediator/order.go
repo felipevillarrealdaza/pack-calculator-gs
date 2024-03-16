@@ -38,10 +38,15 @@ func NewOrderMediator(deps ...OrderMediatorDeps) OrderMediator {
 }
 
 func (om orderMediator) CreateOrder(ctx context.Context, order domain_model.Order) error {
+	// Validate order quantity is a natural number
+	if order.Quantity <= 0 {
+		return errors.New(fmt.Sprintf("order quantity [%v] must be greater than 0", order.Quantity))
+	}
+
 	// Create order in db
 	params := repository.AddOrderParams{OrderID: order.OrderId, OrderQuantity: int32(order.Quantity)}
 	if addErr := om.orderRepository.AddOrder(ctx, params); addErr != nil {
-		return errors.Wrap(addErr, fmt.Sprintf("could not add order with [%v] items", params.OrderQuantity))
+		return errors.Wrap(addErr, fmt.Sprintf("could not add order for [%v] items", params.OrderQuantity))
 	}
 	return nil
 }
@@ -56,7 +61,7 @@ func (om orderMediator) CalculateOrderPacks(ctx context.Context, orderId uuid.UU
 	// Retrieve packs info
 	packs, retrievePacksErr := om.orderRepository.RetrievePacks(ctx)
 	if retrievePacksErr != nil {
-		return domain_model.OrderPacks{}, errors.Wrap(retrievePacksErr, "could not retrieve packs")
+		return domain_model.OrderPacks{}, errors.Wrap(retrievePacksErr, "could not retrieve available packs")
 	}
 
 	// Translate to domain models
@@ -102,13 +107,14 @@ func calculateOrderPacks(orderPacks domain_model.OrderPacks) domain_model.OrderP
 				for _, packSize := range orderPacks.AvailablePacks {
 					currentPackArrangement[packSize] = 0
 				}
+				currentPackArrangement[pack] = 1
 			} else {
 				for packSize, packValue := range orderPacks.ResultGrid[gridIndex-pack] {
 					currentPackArrangement[packSize] = packValue
 				}
+				currentPackArrangement[pack]++
 			}
 
-			currentPackArrangement[pack]++
 			totalItemsPackaged, totalPackages := currentPackArrangement.TotalItemsAndPackages()
 			if totalItemsPackaged < orderPacks.BestItemQuantity {
 				orderPacks.UseAsOptimalSolution(currentPackArrangement)

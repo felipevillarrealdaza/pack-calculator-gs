@@ -1,7 +1,6 @@
 package api
 
 import (
-	"database/sql"
 	"net/http"
 
 	"github.com/felipevillarrealdaza/go-service-template/internal/controller"
@@ -10,17 +9,10 @@ import (
 	"github.com/gorilla/mux"
 )
 
-func NewRouter(dbCtx *sql.DB) http.Handler {
+func NewRouter(packMediator mediator.PackMediator, orderMediator mediator.OrderMediator, repository repository.Querier) http.Handler {
 	router := mux.NewRouter().PathPrefix("/api/v1").Subrouter()
 
 	// Add middlewares for the router
-
-	// Create repository, which is a dependency for mediators
-	repository := repository.New(dbCtx)
-
-	// Create mediators, which are dependencies for controllers
-	packMediator := mediator.NewPackMediator(mediator.WithPackRepository(repository))
-	orderMediator := mediator.NewOrderMediator(mediator.WithOrderRepository(repository))
 
 	// Create controllers
 	healthController := controller.NewHttpHealthController()
