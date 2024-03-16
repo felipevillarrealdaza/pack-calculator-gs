@@ -28,10 +28,3 @@ services:
       dockerfile: docker/db/Dockerfile
     environment:
       POSTGRES_PASSWORD: password
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080
-    depends_on:
-      - db
