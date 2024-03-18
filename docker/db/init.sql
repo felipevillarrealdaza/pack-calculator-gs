@@ -20,3 +20,9 @@ CREATE TABLE public.order_packs (
     pack_quantity int NOT NULL,
     PRIMARY KEY(order_packs_id, order_id, pack_size)
 );
+
+INSERT INTO public.pack VALUES (250);
+INSERT INTO public.pack VALUES (500);
+INSERT INTO public.pack VALUES (1000);
+INSERT INTO public.pack VALUES (2000);
+INSERT INTO public.pack VALUES (5000);

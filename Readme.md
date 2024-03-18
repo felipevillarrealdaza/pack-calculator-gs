@@ -33,7 +33,7 @@ curl --location --request DELETE '0.0.0.0:8000/api/v1/pack' \
 
 You can modify the *size* field in the request body as needed.
 
-## Creating and order to calculate packs
+## Creating the order to calculate packs
 
 To create an order and calculate the packs needed for a specific amount of items, you must make a request similar to this:
 
