@@ -1,3 +1,11 @@
+## Live Demo
+
+You can target the live demo using the following URL:
+
+*54.237.205.73:8000/api/v1*
+
+All the endpoints specified in this documentation should work in the live demo and locally.
+
 ## Running the Pack Calculator service
 You must run `docker-compose up`, which will spin up the following services:
 - API
