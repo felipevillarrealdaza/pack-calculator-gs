@@ -6,6 +6,8 @@ You can target the live demo using the following URL:
 
 All the endpoints specified in this documentation should work in the live demo and locally.
 
+This project **does not** have a UI, it's only usable through API
+
 ## Running the Pack Calculator service
 You must run `docker-compose up`, which will spin up the following services:
 - API

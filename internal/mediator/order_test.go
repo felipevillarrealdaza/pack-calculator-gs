@@ -120,28 +120,28 @@ func Test_CalculateOrderPacks_OK(t *testing.T) {
 		},
 		{
 			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 8},
-			availablePacks: []int32{23, 31, 53},
-			optimalResult:  domain_model.OrderPack{23: 1, 31: 0, 53: 0},
+			availablePacks: []int32{15, 33, 50},
+			optimalResult:  domain_model.OrderPack{15: 1, 33: 0, 50: 0},
 		},
 		{
-			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 200},
-			availablePacks: []int32{23, 31, 53},
-			optimalResult:  domain_model.OrderPack{23: 1, 31: 4, 53: 1},
+			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 100},
+			availablePacks: []int32{15, 33, 50},
+			optimalResult:  domain_model.OrderPack{15: 0, 33: 0, 50: 2},
 		},
 		{
-			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 221},
-			availablePacks: []int32{23, 31, 53},
-			optimalResult:  domain_model.OrderPack{23: 0, 31: 2, 53: 3},
+			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 111},
+			availablePacks: []int32{15, 33, 50},
+			optimalResult:  domain_model.OrderPack{15: 3, 33: 2, 50: 0},
 		},
 		{
-			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 647},
-			availablePacks: []int32{23, 31, 53},
-			optimalResult:  domain_model.OrderPack{23: 2, 31: 4, 53: 9},
+			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 82},
+			availablePacks: []int32{15, 33, 50},
+			optimalResult:  domain_model.OrderPack{15: 0, 33: 1, 50: 1},
 		},
 		{
-			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 500000},
-			availablePacks: []int32{23, 31, 53},
-			optimalResult:  domain_model.OrderPack{23: 2, 31: 7, 53: 9429},
+			order:          repository.Order{OrderID: uuid.New(), OrderQuantity: 333},
+			availablePacks: []int32{15, 33, 50},
+			optimalResult:  domain_model.OrderPack{15: 0, 33: 1, 50: 6},
 		},
 	}
 

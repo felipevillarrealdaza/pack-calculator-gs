@@ -97,12 +97,15 @@ func translateToDomainModel(order repository.Order, packs []int32) domain_model.
 
 // calculate the optimal way to package the order quantity, based on the packs configured.
 func calculateOrderPacks(orderPacks domain_model.OrderPacks) domain_model.OrderPacks {
+	// Loop through all quantities until we reach the desired
 	for gridIndex := 1; gridIndex <= orderPacks.OrderQuantity; gridIndex++ {
-		orderPacks.ResetItemsAndPackageQuantities()
+		orderPacks.ResetItemsAndPackageQuantities() // Set the package quantities to the maximum amount.
 
 		for _, pack := range orderPacks.AvailablePacks {
 			currentPackArrangement := make(domain_model.OrderPack)
 
+			// If iteration is less than package size, default to 1 pack
+			// If iteration is greater than package size, use previous answers and add one more pack
 			if gridIndex <= pack {
 				for _, packSize := range orderPacks.AvailablePacks {
 					currentPackArrangement[packSize] = 0
@@ -115,6 +118,7 @@ func calculateOrderPacks(orderPacks domain_model.OrderPacks) domain_model.OrderP
 				currentPackArrangement[pack]++
 			}
 
+			// Calculate total number of items and packs to enforce business rules.
 			totalItemsPackaged, totalPackages := currentPackArrangement.TotalItemsAndPackages()
 			if totalItemsPackaged < orderPacks.BestItemQuantity {
 				orderPacks.UseAsOptimalSolution(currentPackArrangement)
@@ -123,6 +127,7 @@ func calculateOrderPacks(orderPacks domain_model.OrderPacks) domain_model.OrderP
 			}
 		}
 
+		// Save optimal packaging for this specific iteration in the result grid
 		orderPacks.ResultGrid[gridIndex] = orderPacks.OptimalOrderPack
 	}
 
